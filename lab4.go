@@ -23,6 +23,11 @@ func ex1(){
 
 	fmt.Println("Datele initiale:", p.Nume, p.Grupa)
 
+
+	// Atentie !
+	// Tu chiar daca ai folosit Marshal
+	// datele returnate sunt in format de bytes
+	// adica nu ti converteste intr-o stuctura de tip json !
 	dateJson, err := json.Marshal(p)
 	if err != nil {
 		fmt.Println("Eroare la serializare:", err)
@@ -31,6 +36,7 @@ func ex1(){
 
 	fmt.Println("Datele in format JSON:")
 	fmt.Println(string(dateJson))
+
 }
 
 

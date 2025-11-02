@@ -1,7 +1,7 @@
 package main
 
 func main() {
-	ex4()
+	ex3()
 }
 
 
