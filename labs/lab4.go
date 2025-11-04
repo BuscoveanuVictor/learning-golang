@@ -15,7 +15,7 @@ type Person struct {
 }
 
 
-func ex1(){
+func lab4_ex1(){
 	p := Person{
 		Nume:  "Popescu",
 		Grupa: "333",
@@ -46,7 +46,7 @@ type Coffee struct {
     Origin  string   `xml:"origin"`
 }
 
-func ex2(){
+func lab4_ex2(){
 	coffee := Coffee{
 		Name:   "Arabica",
 		Origin: "Ethiopia",
@@ -82,7 +82,7 @@ func ex2(){
 
 }
 
-func ex3(){
+func lab4_ex3(){
 	parsedUrl, err := url.Parse("https://example.com:8080/path?item=1#fragment")
 	if err != nil {
 		fmt.Println("Eroare la parsare URL:", err)
