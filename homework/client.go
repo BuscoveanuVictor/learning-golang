@@ -2,21 +2,59 @@ package main
 
 import (
 	"fmt"
-	"net"
+	"net/rpc"
+	"os"
+	"log"
+	"strings"
 )
 
-func client(){
-	var conn net.Conn
-	var err error
-	for conn == nil {
-		conn, err = net.Dial("tcp", "localhost:10000")
-	}
+var reply Reply
+var args Args
 
+func runClient(addr string) error {
+	client, err := rpc.Dial("tcp", addr)
 	if err != nil {
-		fmt.Println("Eroare la conectarea la server:", err)
-		return
+		return fmt.Errorf("nu pot face dial catre server: %w", err)
 	}
-	conn.Write([]byte("Salut server!\n"))
+	defer client.Close()
 
-	defer conn.Close()
+	data, err := os.ReadFile("input4.txt")
+	if err != nil {
+		log.Fatal(err)
+	}
+	
+
+	dataStr := string(data)
+	dataSplit := strings.Split(strings.TrimSpace(dataStr), " ")
+
+	args := Args{
+		Data: dataSplit[1:],
+	}
+	
+	switch dataSplit[0] {
+		case "1":
+			fmt.Println("Clientul a selectat cerinta 1")
+			if err := client.Call("Procedures.Words", &args, &reply); err != nil {
+				return fmt.Errorf("apel RPC esuat: %w", err)
+			}
+	
+		case "3":
+			fmt.Println("Clientul a selectat cerinta 3")
+			if err := client.Call("Procedures.Numbers", &args, &reply); err != nil {
+				return fmt.Errorf("apel RPC esuat: %w", err)
+			}
+
+		case "4":
+			fmt.Println("Clientul a selectat cerinta 4")
+			if err := client.Call("Procedures.Range", &args, &reply); err != nil {
+				return fmt.Errorf("apel RPC esuat: %w", err)
+			}
+	}
+
+
+	fmt.Println("Rezultat:", reply.Result)
+
+	// fmt.Println("Rezultat:", reply.Result)
+	return nil
 }
+
