@@ -2,23 +2,27 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/rpc"
 	"os"
-	"log"
 	"strings"
 )
 
 var reply Reply
 var args Args
 
-func runClient(addr string) error {
+
+
+func runClient(addr string, req string, clientName int) error {
 	client, err := rpc.Dial("tcp", addr)
 	if err != nil {
 		return fmt.Errorf("nu pot face dial catre server: %w", err)
 	}
 	defer client.Close()
 
-	data, err := os.ReadFile("input4.txt")
+	fmt.Printf("Client %d Conectat.\n", clientName)
+
+	data, err := os.ReadFile(fmt.Sprintf("input%s.txt", req))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -28,33 +32,31 @@ func runClient(addr string) error {
 	dataSplit := strings.Split(strings.TrimSpace(dataStr), " ")
 
 	args := Args{
-		Data: dataSplit[1:],
-	}
-	
-	switch dataSplit[0] {
-		case "1":
-			fmt.Println("Clientul a selectat cerinta 1")
-			if err := client.Call("Procedures.Words", &args, &reply); err != nil {
-				return fmt.Errorf("apel RPC esuat: %w", err)
-			}
-	
-		case "3":
-			fmt.Println("Clientul a selectat cerinta 3")
-			if err := client.Call("Procedures.Numbers", &args, &reply); err != nil {
-				return fmt.Errorf("apel RPC esuat: %w", err)
-			}
-
-		case "4":
-			fmt.Println("Clientul a selectat cerinta 4")
-			if err := client.Call("Procedures.Range", &args, &reply); err != nil {
-				return fmt.Errorf("apel RPC esuat: %w", err)
-			}
+		Data: dataSplit,
 	}
 
+	m := make(map[string]string)
+	m["1"] = "Words"
+	m["3"] = "Numbers"
+	m["4"] = "Range"
+	m["8"] = "PrimeDigits"
+	m["12"] = "DoubleFirstDigitSum"
 
+	procedureToCall, ok := m[req]
+	if !ok {
+		return fmt.Errorf("cerinta %s nu este suportata", req)
+	}
+
+	fmt.Printf("Client %d a facut request cu datele: %s.\n", clientName, strings.Join(args.Data, " "))
+
+	fmt.Println("Clientul a selectat cerinta: ", req)
+	if err := client.Call("Procedures."+procedureToCall, &args, &reply); err != nil {
+		return fmt.Errorf("apel RPC esuat: %w", err)
+	}
+
+	fmt.Printf("Client %d a primit raspunsul: %v.\n", clientName, reply.Result)
 	fmt.Println("Rezultat:", reply.Result)
 
-	// fmt.Println("Rezultat:", reply.Result)
 	return nil
 }
 
